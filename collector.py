@@ -89,7 +89,6 @@ def fetch_youtube_trending(max_results: int = 10) -> list[dict]:
         "part":            "snippet,statistics",
         "chart":           "mostPopular",
         "regionCode":      CONFIG["youtube"].get("region", "US"),
-        "videoCategoryId": "0",
         "maxResults":      max_results,
         "key":             api_key,
     }
