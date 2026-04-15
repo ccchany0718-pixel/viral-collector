@@ -83,42 +83,53 @@ def fetch_reddit_top_comments(subreddit: str, post_id: str) -> list[str]:
 def fetch_youtube_trending(max_results: int = 10) -> list[dict]:
     api_key = CONFIG["youtube"].get("api_key", "")
     if not api_key:
-        print("  [YouTube] API 키 없음 → 건너뜀 (config.py 에 키 입력)")
-        return []
-    params = {
-        "part":            "snippet,statistics",
-        "chart":           "mostPopular",
-        "regionCode":      CONFIG["youtube"].get("region", "US"),
-        "maxResults":      max_results,
-        "key":             api_key,
-    }
-    try:
-        r = requests.get(
-            "https://www.googleapis.com/youtube/v3/videos",
-            params=params, timeout=10)
-        r.raise_for_status()
-        posts = []
-        for item in r.json().get("items", []):
-            snip = item["snippet"]
-            stat = item.get("statistics", {})
-            posts.append({
-                "source":      "youtube",
-                "id":          item["id"],
-                "title":       snip.get("title", ""),
-                "url":         f"https://youtu.be/{item['id']}",
-                "channel":     snip.get("channelTitle", ""),
-                "views":       int(stat.get("viewCount", 0)),
-                "likes":       int(stat.get("likeCount", 0)),
-                "comments":    int(stat.get("commentCount", 0)),
-                "tags":        snip.get("tags", [])[:5],
-                "description": snip.get("description", "")[:300],
-                "created":     snip.get("publishedAt", ""),
-            })
-        return posts
-    except Exception as e:
-        print(f"  [YouTube] 오류: {e}")
+        print("  [YouTube] API 키 없음 → 건너뜀")
         return []
 
+    keywords = [
+        "couple prank shorts",
+        "husband wife funny shorts",
+        "parenting funny shorts",
+        "marriage relatable shorts",
+        "dad mom baby funny",
+    ]
+
+    posts = []
+    for keyword in keywords:
+        params = {
+            "part":          "snippet",
+            "q":             keyword,
+            "type":          "video",
+            "videoDuration": "short",
+            "order":         "viewCount",
+            "maxResults":    3,
+            "key":           api_key,
+        }
+        try:
+            r = requests.get(
+                "https://www.googleapis.com/youtube/v3/search",
+                params=params, timeout=10)
+            r.raise_for_status()
+            for item in r.json().get("items", []):
+                vid_id = item["id"].get("videoId", "")
+                snip   = item["snippet"]
+                posts.append({
+                    "source":      "youtube",
+                    "id":          vid_id,
+                    "title":       snip.get("title", ""),
+                    "url":         f"https://youtu.be/{vid_id}",
+                    "channel":     snip.get("channelTitle", ""),
+                    "description": snip.get("description", "")[:300],
+                    "created":     snip.get("publishedAt", ""),
+                    "comments":    0,
+                    "views":       0,
+                    "likes":       0,
+                    "tags":        [],
+                })
+        except Exception as e:
+            print(f"  [YouTube/{keyword}] 오류: {e}")
+
+    return posts[:max_results]
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 3. Claude AI 분석  (Anthropic Messages API)
