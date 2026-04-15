@@ -1,0 +1,29 @@
+name: 🎬 Daily Viral Collector
+
+on:
+  schedule:
+    - cron: "0 0 * * *"   # 매일 UTC 00:00 = 한국 09:00
+  workflow_dispatch:        # 수동 실행 가능
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Run collector
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: python collector.py
+      - name: Commit results
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "viral-collector-bot"
+          git add daily_briefs/ weekly_reports/
+          git diff --staged --quiet || git commit -m "🎬 Daily brief $(date +'%Y-%m-%d')"
+          git push

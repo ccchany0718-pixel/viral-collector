@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+.env
+venv/
+.venv/
+
+# API 키 직접 입력 시 보호 (방법 B 사용자)
+# config.py  ← 환경변수 쓰면 주석 해제 불필요
+
+# OS
+.DS_Store
+Thumbs.db
