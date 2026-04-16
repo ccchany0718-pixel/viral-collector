@@ -106,7 +106,8 @@ def fetch_youtube_trending(max_results: int = 10) -> list[dict]:
             "q":             keyword,
             "type":          "video",
             "videoDuration": "short",
-            "order":         "date",
+            "order":         "viewCount",
+            "publishedAfter": (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "maxResults":    3,
             "key":           api_key,
         }
