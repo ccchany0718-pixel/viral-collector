@@ -79,7 +79,7 @@ def format_item_block(item: dict, rank: int) -> str:
 |------|------|
 | 📌 출처 | {source} |
 | 🔗 링크 | [{url[:60]}]({url}) |
-| 📊 반응 | {_score_to_hype(score)} ({score:,}) |
+| 📊 반응 | {_score_to_hype(score)} ({score:,}) · 👁 조회 {item.get("views", 0):,} · 👍 {item.get("likes", 0):,} |
 | 💬 댓글 수 | {comments:,}개 |
 | 🏷️ 상황 | {situation} |
 
