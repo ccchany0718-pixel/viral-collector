@@ -118,7 +118,19 @@ def fetch_youtube_trending(max_results: int = 10) -> list[dict]:
             r.raise_for_status()
             for item in r.json().get("items", []):
                 vid_id = item["id"].get("videoId", "")
-                snip   = item["snippet"]
+                if not vid_id:
+                    continue
+                snip = item["snippet"]
+                stats_r = requests.get(
+                    "https://www.googleapis.com/youtube/v3/videos",
+                    params={"part": "statistics", "id": vid_id, "key": api_key},
+                    timeout=10
+                )
+                stats = {}
+                if stats_r.ok:
+                    items2 = stats_r.json().get("items", [])
+                    if items2:
+                        stats = items2[0].get("statistics", {})
                 posts.append({
                     "source":      "youtube",
                     "id":          vid_id,
@@ -127,9 +139,9 @@ def fetch_youtube_trending(max_results: int = 10) -> list[dict]:
                     "channel":     snip.get("channelTitle", ""),
                     "description": snip.get("description", "")[:300],
                     "created":     snip.get("publishedAt", ""),
-                    "comments":    0,
-                    "views":       0,
-                    "likes":       0,
+                    "comments":    int(stats.get("commentCount", 0)),
+                    "views":       int(stats.get("viewCount", 0)),
+                    "likes":       int(stats.get("likeCount", 0)),
                     "tags":        [],
                 })
         except Exception as e:
