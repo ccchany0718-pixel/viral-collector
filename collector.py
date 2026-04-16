@@ -92,6 +92,11 @@ def fetch_youtube_trending(max_results: int = 10) -> list[dict]:
         "parenting funny shorts",
         "marriage relatable shorts",
         "dad mom baby funny",
+        "prank shorts",
+        "couple prank reaction",
+        "funny prank shorts viral",
+        "wife prank husband shorts",
+        "baby toddler funny shorts",
     ]
 
     posts = []
@@ -101,7 +106,7 @@ def fetch_youtube_trending(max_results: int = 10) -> list[dict]:
             "q":             keyword,
             "type":          "video",
             "videoDuration": "short",
-            "order":         "viewCount",
+            "order":         "date",
             "maxResults":    3,
             "key":           api_key,
         }
