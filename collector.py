@@ -87,16 +87,16 @@ def fetch_youtube_trending(max_results: int = 10) -> list[dict]:
         return []
 
     keywords = [
-        "couple prank shorts",
-        "husband wife funny shorts",
-        "parenting funny shorts",
-        "marriage relatable shorts",
-        "dad mom baby funny",
-        "prank shorts",
-        "couple prank reaction",
-        "funny prank shorts viral",
-        "wife prank husband shorts",
-        "baby toddler funny shorts",
+        "couple prank funny shorts",
+        "husband wife funny moment shorts",
+        "marriage humor shorts viral",
+        "dad funny moment shorts",
+        "mom baby funny reaction shorts",
+        "couple goals funny shorts",
+        "wife reaction funny shorts",
+        "family funny moment shorts viral",
+        "prank on spouse shorts",
+        "parenting humor shorts",
     ]
 
     posts = []
