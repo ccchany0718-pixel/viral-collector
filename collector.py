@@ -1,6 +1,6 @@
 """
 collector.py  ―  해외 바이럴 밈/쇼츠 메타데이터 수집기
-매일 Reddit + YouTube 에서 인기 콘텐츠를 긁어와 Claude 로 분석 후
+매일 YouTube 에서 인기 콘텐츠를 긁어와 Claude 로 분석 후
 daily_briefs/ 에 Markdown 파일로 저장합니다.
 """
 
@@ -24,60 +24,7 @@ WEEKLY_DIR.mkdir(exist_ok=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 1. Reddit 수집  (API 키 불필요 — JSON 엔드포인트 사용)
-# ══════════════════════════════════════════════════════════════════════════════
-
-def fetch_reddit_posts(subreddit: str, limit: int = 10) -> list[dict]:
-    url     = f"https://www.reddit.com/r/{subreddit}/hot.json?limit={limit}"
-    headers = {"User-Agent": CONFIG["reddit"]["user_agent"]}
-    try:
-        r = requests.get(url, headers=headers, timeout=10)
-        r.raise_for_status()
-        posts = []
-        for item in r.json()["data"]["children"]:
-            d = item["data"]
-            is_video = d.get("is_video") or d.get("url", "").endswith((".mp4", ".gif"))
-            is_short = any(kw in d.get("title", "").lower()
-                           for kw in ["shorts", "tiktok", "reel", "viral", "trend", "meme"])
-            if not (is_video or is_short):
-                continue
-            posts.append({
-                "source":    "reddit",
-                "subreddit": subreddit,
-                "id":        d["id"],
-                "title":     d.get("title", ""),
-                "url":       f"https://reddit.com{d.get('permalink', '')}",
-                "score":     d.get("score", 0),
-                "comments":  d.get("num_comments", 0),
-                "flair":     d.get("link_flair_text", ""),
-                "thumbnail": d.get("thumbnail", ""),
-                "created":   datetime.utcfromtimestamp(
-                                 d.get("created_utc", 0)).isoformat(),
-            })
-        return posts
-    except Exception as e:
-        print(f"  [Reddit/{subreddit}] 오류: {e}")
-        return []
-
-
-def fetch_reddit_top_comments(subreddit: str, post_id: str) -> list[str]:
-    url     = f"https://www.reddit.com/r/{subreddit}/comments/{post_id}.json?limit=5"
-    headers = {"User-Agent": CONFIG["reddit"]["user_agent"]}
-    try:
-        r = requests.get(url, headers=headers, timeout=10)
-        r.raise_for_status()
-        comments = []
-        for item in r.json()[1]["data"]["children"][:3]:
-            body = item["data"].get("body", "").strip()
-            if body and body != "[deleted]":
-                comments.append(body[:200])
-        return comments
-    except Exception:
-        return []
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# 2. YouTube Trending  (Data API v3)
+# 1. YouTube Trending  (Data API v3)
 # ══════════════════════════════════════════════════════════════════════════════
 
 def fetch_youtube_trending(max_results: int = 10) -> list[dict]:
@@ -149,8 +96,9 @@ def fetch_youtube_trending(max_results: int = 10) -> list[dict]:
 
     return posts[:max_results]
 
+
 # ══════════════════════════════════════════════════════════════════════════════
-# 3. Claude AI 분석  (Anthropic Messages API)
+# 2. Claude AI 분석  (Anthropic Messages API)
 # ══════════════════════════════════════════════════════════════════════════════
 
 def analyze_with_claude(post: dict) -> dict:
@@ -214,15 +162,13 @@ def _fallback_analysis(post: dict) -> dict:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 4. 메인 파이프라인
+# 3. 메인 파이프라인
 # ══════════════════════════════════════════════════════════════════════════════
 
 def collect_daily(date: datetime | None = None) -> list[dict]:
     date = date or datetime.now()
     print(f"\n📡 수집 시작: {date.strftime('%Y-%m-%d')}")
     all_posts: list[dict] = []
-
-print("  Reddit 수집 비활성화")
 
     print("  YouTube 트렌딩 수집 중...")
     yt = fetch_youtube_trending(max_results=CONFIG["youtube"].get("max_results", 10))
@@ -286,7 +232,7 @@ if __name__ == "__main__":
     elif mode == "both":
         posts = collect_daily()
         save_daily_brief(posts)
-        if datetime.now().weekday() == 6:   # 일요일마다 주간 리포트
+        if datetime.now().weekday() == 6:
             save_weekly_report()
 
     else:
