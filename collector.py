@@ -87,16 +87,16 @@ def fetch_youtube_trending(max_results: int = 10) -> list[dict]:
         return []
 
     keywords = [
+        "wife prank shorts",
+        "husband prank shorts",
         "couple prank funny shorts",
-        "husband wife funny moment shorts",
-        "marriage humor shorts viral",
-        "dad funny moment shorts",
-        "mom baby funny reaction shorts",
-        "couple goals funny shorts",
-        "wife reaction funny shorts",
-        "family funny moment shorts viral",
-        "prank on spouse shorts",
-        "parenting humor shorts",
+        "couple magic trick shorts",
+        "wife magic reaction shorts",
+        "couple relatable funny shorts",
+        "married life funny shorts",
+        "couple goals funny reaction",
+        "prank on spouse shorts viral",
+        "couple challenge funny shorts",
     ]
 
     posts = []
@@ -222,13 +222,7 @@ def collect_daily(date: datetime | None = None) -> list[dict]:
     print(f"\n📡 수집 시작: {date.strftime('%Y-%m-%d')}")
     all_posts: list[dict] = []
 
-    for sub in CONFIG["reddit"]["subreddits"]:
-        print(f"  Reddit r/{sub} 수집 중...")
-        posts = fetch_reddit_posts(sub, limit=CONFIG["reddit"]["limit_per_sub"])
-        for p in posts:
-            p["comments_sample"] = fetch_reddit_top_comments(sub, p["id"])
-        all_posts.extend(posts)
-        print(f"    → {len(posts)}개")
+pass
 
     print("  YouTube 트렌딩 수집 중...")
     yt = fetch_youtube_trending(max_results=CONFIG["youtube"].get("max_results", 10))
