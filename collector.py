@@ -222,7 +222,7 @@ def collect_daily(date: datetime | None = None) -> list[dict]:
     print(f"\n📡 수집 시작: {date.strftime('%Y-%m-%d')}")
     all_posts: list[dict] = []
 
-pass
+print("  Reddit 수집 비활성화")
 
     print("  YouTube 트렌딩 수집 중...")
     yt = fetch_youtube_trending(max_results=CONFIG["youtube"].get("max_results", 10))
